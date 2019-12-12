@@ -1,54 +1,54 @@
-clc;clear all;close all;
-I1=imread ('okul2.jpg');
-I2 = rgb2gray(I1);
-I2  = im2double(I2);
+clc ; clear all; close all                                                  ;
+I1 = imread('okul2.jpg')                                                    ; 
+I1 = rgb2gray(I1)                                                           ;
+ 
+K = 0.04                                                                    ;     
+Threshold = 0.0091                                                          ;
 
-K=0.04;
-Threshold=1;
+%%%%%% sobel filter  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-figure;
+dx = [-1 0 1;-2 0 2;-1 0 1]                                                 ;
+Ix = conv2(dx,double(I1))                                                   ;
 
-imshow(I2);
+dy = [1 2 1;0 0 0;-1 -2 -1]                                                 ;
+Iy = conv2(dy,double(I1))                                                   ; 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
+Ix2 = Ix.^2                                                                 ;
+Iy2 = Iy.^2                                                                 ;
+Ixy = Ix.*Iy                                                                ;
 
+Det_M= (Ix2.*Iy2 )                                                          ;
+Trace_M=Ix2 + Iy2                                                           ;
 
+R = Det_M - K*((Trace_M)).^2                                                ;
+Rmax  = max(max(R)) 
+[h , w] = size(R)                                                           ;
+Result = zeros(h,w)                                                         ; 
 
-dx = [-1 0 1;-1 0 1;-1 0 1];
-dy = [1 1 1;0 0 0;-1 -1 -1];
-Ix = conv2(I2, dx, 'same');   
-Iy = conv2(I2, dy, 'same');
-Ix_new = Ix.^2;
-Iy_new = Iy.^2;
-Ixy_new = Ix.*Iy;
-figure;
-imshow(Ix_new);
-figure;
-imshow(Iy_new);
-figure;
-imshow(Ixy_new);
+count = 0                                                                   ;
 
-Det_M= (Ix_new.*Iy_new );
-Trace_M=Ix_new + Iy_new;
-
-R = Det_M - K*((Trace_M)).^2;
-
-disp(max(max(R)));
-
-[h , w] = size(R);
-
-for i = 1:1:h
-    for j = 1:1:w
-        if R(i,j) > 0.5
-        I3(i,j) = 255;
-        else
-            I3(i,j) = 0;
-        end
+for i = 2:h-1
     
-    end
-end
-figure;
+for j = 2:w-1
+    
+if R(i,j) > Threshold *Rmax && R(i,j) > R(i-1,j-1) && R(i,j) > R(i-1,j) && R(i,j) > R(i-1,j+1) && R(i,j) > R(i,j-1) && R(i,j) > R(i,j+1) && R(i,j) > R(i+1,j-1) && R(i,j) > R(i+1,j) && R(i,j) > R(i+1,j+1)
 
-imshow(I3);
+    Result(i,j) = 1                                                         ;
+    
+    count = count+1                                                         ;
+    
+    end                                                                     ;
+end                                                                         ;
+end                                                                         ;
+
+[posc, posr] = find(Result == 1)                                            ;
 
 
+imshow(I1)                                                                  ;
+
+hold on                                                                     ;
+
+plot(posr,posc,'r.')                                                        ;
